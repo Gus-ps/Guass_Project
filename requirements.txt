@@ -1,0 +1,7 @@
+requests
+python-dotenv
+yfinance
+beautifulsoup4
+anthropic
+fastapi
+uvicorn[standard]
