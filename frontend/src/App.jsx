@@ -43,11 +43,17 @@ export default function App() {
   return (
     <div className="app">
       <header>
-        <h1>LLM Stock Insights</h1>
-        <p>Search a ticker to generate a concise LLM-backed company report (Yahoo/Wikipedia/YouTube).</p>
+        <div className="header-inner">
+          <h1>TubePulse</h1>
+          <p className="hero-tag">AI-driven equity research. Generate concise, data-driven company reports that combine fundamentals, market context, and investor sentiment — ready for investors and analysts.</p>
+        </div>
       </header>
 
-      <SearchBar onSearch={(t) => { setTicker(t); runReport(t) }} loading={loading} />
+      <main className="hero-container">
+        <div className="hero-center">
+          <SearchBar onSearch={(t) => { setTicker(t); runReport(t) }} loading={loading} />
+        </div>
+      </main>
 
       {error && <div className="error">{error}</div>}
 
