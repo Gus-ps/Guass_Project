@@ -5,10 +5,10 @@ export default function ReportView({ report }) {
   const markdown = comp.markdown || ''
   const youtubeVideos = report?.youtube_videos || []
   
-  // State for collapsible sections
+  // State for collapsible sections (default: closed so user opens what they want)
   const [sectionsOpen, setSectionsOpen] = useState({
-    analysis: true,
-    youtube: true,
+    analysis: false,
+    youtube: false,
     rawData: false
   })
   
