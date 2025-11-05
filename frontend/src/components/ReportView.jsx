@@ -216,23 +216,70 @@ export default function ReportView({ report }) {
           {sectionsOpen.youtube && (
             <div className="section-content youtube-section">
               <p className="section-description">Viewer perspectives from recent videos about {report?.company_name}</p>
-              {youtubeVideos.map((video, idx) => (
-                <div key={idx} className="video-comments-card">
-                  <h3 className="video-title">
-                    <a href={video.url} target="_blank" rel="noopener noreferrer">
-                      📹 {video.title}
-                    </a>
-                  </h3>
-                  <div className="top-comments">
-                    {video.top_comments.map((comment, commentIdx) => (
-                      <div key={commentIdx} className="comment">
-                        <div className="comment-author">{comment.author}</div>
-                        <div className="comment-text" dangerouslySetInnerHTML={{ __html: comment.text }} />
+              {youtubeVideos.map((video, idx) => {
+                // Helper to extract YouTube video ID from a variety of URL formats
+                const extractYouTubeId = (url) => {
+                  if (!url) return null
+                  try {
+                    const u = new URL(url)
+                    // youtu.be short links
+                    if (u.hostname.includes('youtu.be')) {
+                      return u.pathname.slice(1)
+                    }
+                    // youtube.com watch?v=ID
+                    if (u.searchParams && u.searchParams.get('v')) {
+                      return u.searchParams.get('v')
+                    }
+                    // /embed/ID or /v/ID paths
+                    const parts = u.pathname.split('/')
+                    const embedIdx = parts.indexOf('embed')
+                    if (embedIdx !== -1 && parts.length > embedIdx + 1) return parts[embedIdx + 1]
+                    const vIdx = parts.indexOf('v')
+                    if (vIdx !== -1 && parts.length > vIdx + 1) return parts[vIdx + 1]
+                    return null
+                  } catch (e) {
+                    return null
+                  }
+                }
+
+                const videoId = extractYouTubeId(video.url)
+                const embedSrc = videoId ? `https://www.youtube.com/embed/${videoId}` : null
+
+                return (
+                  <div key={idx} className="video-comments-card">
+                    <h3 className="video-title">📹 {video.title}</h3>
+
+                    {/* Embed official YouTube player when possible */}
+                    {embedSrc ? (
+                      <div className="youtube-embed-wrapper">
+                        <iframe
+                          title={`youtube-player-${videoId}`}
+                          src={embedSrc}
+                          width="560"
+                          height="315"
+                          loading="lazy"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                          allowFullScreen
+                        />
                       </div>
-                    ))}
+                    ) : (
+                      <div className="video-link">
+                        <a href={video.url} target="_blank" rel="noopener noreferrer">Open video on YouTube</a>
+                      </div>
+                    )}
+
+                    <div className="top-comments">
+                      {video.top_comments.map((comment, commentIdx) => (
+                        <div key={commentIdx} className="comment">
+                          <div className="comment-author">{comment.author}</div>
+                          <div className="comment-text" dangerouslySetInnerHTML={{ __html: comment.text }} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
