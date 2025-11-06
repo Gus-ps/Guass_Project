@@ -4,7 +4,7 @@ Minimal backend function scaffold for extracting multi-source company informatio
 
 ## What this repo provides
 - Functions to validate tickers
-- Fetchers: Yahoo (via yfinance), Web (Wikipedia), Reddit (Pushshift), YouTube (Google Data API when API key provided)
+- Fetchers: Yahoo (via yfinance), Web (Wikipedia), YouTube (Google Data API when API key provided)
 - LLM clients: Anthropic wrapper (required),
 - An orchestrator that runs the pipeline and returns a markdown report
 
