@@ -192,3 +192,14 @@ Open the browser at the address printed by Vite (usually `http://localhost:5173`
 - YouTube embed: The app extracts the video ID and uses the official `https://www.youtube.com/embed/{id}` iframe for embedding videos. If it cannot parse an ID it shows a link instead.
 
 ---
+
+## Post-deadline update — YouTube filtering (added 2025-11-06)
+
+Note: This change was implemented after the project deadline.
+
+- What changed: The backend now excludes YouTube "Shorts" and will skip videos shorter than approximately 10 minutes. This helps the pipeline favor longer-form, educational, and analyst-style videos that typically produce more substantive comments and higher-quality discussion.
+- Why: Shorts and very short clips often contain low-value comments and noise (promotions, one-liners, or off-topic reactions). Requiring longer videos improves comment quality and the LLM's ability to synthesize meaningful social sentiment.
+- Customize: The duration cutoff is implemented as a strict threshold in `src/backend.py` (10 minutes = 600 seconds).
+
+
+---
