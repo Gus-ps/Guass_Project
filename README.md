@@ -5,7 +5,7 @@ Minimal backend function scaffold for extracting multi-source company informatio
 ## What this repo provides
 - Functions to validate tickers
 - Fetchers: Yahoo (via yfinance), Web (Wikipedia), Reddit (Pushshift), YouTube (Google Data API when API key provided)
-- LLM clients: Anthropic wrapper (required), optional OpenAI wrapper (fallback/comparator)
+- LLM clients: Anthropic wrapper (required),
 - An orchestrator that runs the pipeline and returns a markdown report
 
 ## Structure
@@ -15,7 +15,7 @@ Minimal backend function scaffold for extracting multi-source company informatio
 - `requirements.txt`: Python dependencies
 
 ## How to use (locally)
-1. Copy `.env.example` to `.env` and fill keys (ANTHROPIC_API_KEY required, optional YT/OPENAI keys).
+1. Copy `.env.example` to `.env` and fill keys (ANTHROPIC_API_KEY required, `YOUTUBE_API_KEY`).
 2. Create a venv and install requirements:
    ```powershell
    python -m venv .venv
@@ -42,7 +42,7 @@ This project fetches company summaries and metrics (Yahoo Finance, Wikipedia), c
 - Fetches company metadata and financial metrics (via Yahoo Finance / yfinance and other services).
 - Collects recent YouTube videos and top comments relevant to the ticker.
 - Filters and scores YouTube comments to find higher-quality investor-focused commentary.
-- Uses an LLM (Anthropic model by default in this repo) to synthesize an 8-section markdown report: Executive Summary, Company Overview, Financial Health & Metrics (table), Recent Performance, Market Sentiment, Key Concerns & Risks, Positive Signals & Opportunities, Investment Outlook.
+- Uses an LLM (Anthropic model by default in this repo) to synthesize an 8-section markdown report: Executive Summary, Company Overview, Financial Health & Metrics (table), Recent Performance, Market Sentiment, Key Concerns & Risks, Positive Signals & Opportunities, Investment Outlook.  
 - Frontend (React + Vite) shows a clean landing page with a centered search bar and renders the report with tables and embedded YouTube players.
 
 ---
@@ -87,6 +87,25 @@ Frontend needs an environment variable to target the backend (optional):
 Security note: Never commit API keys to git. Use environment variables or a secrets manager.
 
 ---
+
+## How to get a YouTube Data API key
+
+To fetch videos and comments the project uses the YouTube Data API v3. Follow these steps to create an API key and plug it into the project:
+
+1. Open the Google Cloud Console: https://console.cloud.google.com/
+2. Create (or select) a project.
+3. In the left-hand menu, go to "APIs & Services" → "Library" and search for **YouTube Data API v3**. Click it and then click **Enable**.
+4. After enabling, go to "APIs & Services" → "Credentials" and click **Create credentials** → **API key**.
+5. Copy the generated API key. 
+
+
+Once you have the key, add it to your `.env` (or export it in your environment) as:
+
+```
+YOUTUBE_API_KEY=your_api_key_here
+```
+
+Note: If you do not provide a `YOUTUBE_API_KEY`, the app will still produce reports using Yahoo/Wikipedia/metrics, but social sentiment (YouTube) sections will be empty or limited.
 
 ## Install (backend)
 
