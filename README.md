@@ -41,6 +41,7 @@ This project fetches company summaries and metrics (Yahoo Finance, Wikipedia), c
 
 - Fetches company metadata and financial metrics (via Yahoo Finance / yfinance and other services).
 - Collects recent YouTube videos and top comments relevant to the ticker.
+   - Note: Top YouTube videos now exclude YouTube "Shorts" (very short clips) and prefer longer-form educational videos — the backend will skip videos under ~10 minutes to favor substantive content.
 - Filters and scores YouTube comments to find higher-quality investor-focused commentary.
 - Uses an LLM (Anthropic model by default in this repo) to synthesize an 8-section markdown report: Executive Summary, Company Overview, Financial Health & Metrics (table), Recent Performance, Market Sentiment, Key Concerns & Risks, Positive Signals & Opportunities, Investment Outlook.  
 - Frontend (React + Vite) shows a clean landing page with a centered search bar and renders the report with tables and embedded YouTube players.

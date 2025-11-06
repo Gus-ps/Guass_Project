@@ -154,6 +154,48 @@ def fetch_youtube_comments_for_query(query: str, max_videos: int = 5, max_commen
     if not config.YOUTUBE_API_KEY:
         logger.info("YOUTUBE_API_KEY not provided; skipping YouTube fetch")
         return {"all_comments": [], "videos": []}
+    
+    def _parse_iso8601_duration(dur: str) -> int:
+        """Parse ISO 8601 duration (e.g. PT1H2M30S) and return seconds (int).
+
+        Returns 0 if the string can't be parsed.
+        """
+        try:
+            import re
+            m = re.match(r"PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$", dur)
+            if not m:
+                return 0
+            hours = int(m.group(1) or 0)
+            minutes = int(m.group(2) or 0)
+            seconds = int(m.group(3) or 0)
+            return hours * 3600 + minutes * 60 + seconds
+        except Exception:
+            return 0
+
+    def _fetch_video_duration_seconds(video_id: str) -> int:
+        """Return video duration in seconds using the YouTube Videos API (contentDetails).
+
+        Returns None when duration cannot be retrieved.
+        """
+        try:
+            url = "https://www.googleapis.com/youtube/v3/videos"
+            params = {"part": "contentDetails", "id": video_id, "key": config.YOUTUBE_API_KEY}
+            r = requests.get(url, params=params, timeout=10)
+            if r.status_code == 403:
+                logger.warning("YouTube Videos API returned 403 when fetching details for %s", video_id)
+                return None
+            r.raise_for_status()
+            items = r.json().get("items", [])
+            if not items:
+                return None
+            dur = items[0].get("contentDetails", {}).get("duration")
+            if not dur:
+                return None
+            secs = _parse_iso8601_duration(dur)
+            return secs
+        except Exception as e:
+            logger.debug("Failed to fetch duration for video %s: %s", video_id, e)
+            return None
     try:
         # Enhance query to target financial/investment content
         financial_query = f"{query} stock analysis investment earnings"
@@ -203,6 +245,21 @@ def fetch_youtube_comments_for_query(query: str, max_videos: int = 5, max_commen
             is_financial = any(keyword in title_lower for keyword in financial_keywords)
             if not is_financial:
                 logger.info("Skipping non-financial video: %s", video_title)
+                continue
+
+            # Skip Shorts and prefer longer-form educational videos (~10 minutes)
+            # Fetch video duration (seconds) and skip if it's a short or under 10 minutes
+            duration_secs = _fetch_video_duration_seconds(vid)
+            if duration_secs is None:
+                logger.info("Could not determine duration for video %s (ID: %s) — skipping", video_title, vid)
+                continue
+            # Skip YouTube Shorts (very short videos) and require at least ~10 minutes
+            if duration_secs < 60:
+                logger.info("Skipping YouTube Short (duration %ds): %s", duration_secs, video_title)
+                continue
+            # Require at least 10 minutes (600 seconds) for educational content
+            if duration_secs < 600:
+                logger.info("Skipping short video (<10min, %ds): %s", duration_secs, video_title)
                 continue
             
             logger.info("Trying to fetch comments from financial video: %s (ID: %s)", video_title, vid)
